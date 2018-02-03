@@ -17,6 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import net.demilich.metastone.game.behaviour.GreedyOptimizeMove;
+import net.demilich.metastone.game.behaviour.GreedyOptimizeTurn;
 import net.demilich.metastone.game.behaviour.IBehaviour;
 import net.demilich.metastone.game.behaviour.NoAggressionBehaviour;
 import net.demilich.metastone.game.behaviour.PlayRandomBehaviour;
@@ -169,6 +170,7 @@ public class PlayerConfigView extends VBox {
 		behaviourList.add(new PlayRandomBehaviour());
 
 		behaviourList.add(new GreedyOptimizeMove(new WeightedHeuristic()));
+		behaviourList.add(new GreedyOptimizeTurn(new WeightedHeuristic()));
 		behaviourList.add(new NoAggressionBehaviour());
 		behaviourList.add(new FlatMonteCarlo(100));
 

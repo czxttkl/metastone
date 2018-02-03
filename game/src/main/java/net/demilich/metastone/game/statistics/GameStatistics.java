@@ -17,6 +17,14 @@ public class GameStatistics implements Cloneable {
 	private final Map<String, Map<Integer, Integer>> minionsSummoned = new HashMap<String, Map<Integer, Integer>>();
 	private final Map<String, Map<Integer, Integer>> permanentsSummoned = new HashMap<String, Map<Integer, Integer>>();
 
+	public long getPlayer2GamesWon() {
+		return (Long) this.stats.get(Statistic.GAMES_WON);
+	}
+
+	public long getPlayer2GamesLost() {
+		return (Long) this.stats.get(Statistic.GAMES_LOST);
+	}
+
 	private void add(Statistic key, long value) {
 		if (!stats.containsKey(key)) {
 			stats.put(key, 0L);
