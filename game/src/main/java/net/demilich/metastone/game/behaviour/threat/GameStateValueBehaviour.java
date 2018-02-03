@@ -122,8 +122,16 @@ public class GameStateValueBehaviour extends Behaviour {
 			return;
 		}
 
-		RequestTrainingDataNotification request = new RequestTrainingDataNotification(player.getDeckName(), this::answerTrainingData);
-		NotificationProxy.notifyObservers(request);
+		try {
+			RequestTrainingDataNotification request = new RequestTrainingDataNotification(player.getDeckName(), this::answerTrainingData);
+			NotificationProxy.notifyObservers(request);
+		} catch (RuntimeException e) {
+			// when notification proxy is not instantiated, we reach here
+			// since training data will return null anyway, we execute what is in the answering function
+			featureVector = FeatureVector.getFittest();
+			heuristic = new ThreatBasedHeuristic(featureVector);
+			nameSuffix = "(untrained)";
+		}
 	}
 
 }

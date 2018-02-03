@@ -18,11 +18,19 @@ public class GameStatistics implements Cloneable {
 	private final Map<String, Map<Integer, Integer>> permanentsSummoned = new HashMap<String, Map<Integer, Integer>>();
 
 	public long getPlayer2GamesWon() {
-		return (Long) this.stats.get(Statistic.GAMES_WON);
+		try {
+			return (Long) this.stats.get(Statistic.GAMES_WON);
+		} catch (NullPointerException e) {
+			return 0;
+		}
 	}
 
 	public long getPlayer2GamesLost() {
-		return (Long) this.stats.get(Statistic.GAMES_LOST);
+		try {
+			return (Long) this.stats.get(Statistic.GAMES_LOST);
+		} catch (NullPointerException e) {
+			return 0;
+		}
 	}
 
 	private void add(Statistic key, long value) {
