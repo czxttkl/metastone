@@ -1,3 +1,5 @@
+package net.demilich.metastone.my;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import net.demilich.metastone.game.Player;
@@ -54,8 +56,10 @@ public class MyMetaStone {
     }
 
     public static void main(String[] args) {
+        long timeStamp = System.currentTimeMillis();
+
         GameConfig gameConfig = new GameConfig();
-        gameConfig.setNumberOfGames(10);
+        gameConfig.setNumberOfGames(100);
 
         DeckFormat deckFormat = new DeckFormat();
         for (CardSet set : CardSet.values()) {
@@ -74,7 +78,7 @@ public class MyMetaStone {
                 );
         player1Config.setName("Player 1");
         player1Config.setHeroCard(getHeroCardForClass(heroClass1));
-        Player player1 = new Player(player1Config);
+//        Player player1 = new Player(player1Config);
 
         HeroClass heroClass2 = getRandomClass();
         PlayerConfig player2Config =
@@ -85,7 +89,7 @@ public class MyMetaStone {
                 );
         player2Config.setName("Player 2");
         player2Config.setHeroCard(getHeroCardForClass(heroClass2));
-        Player player2 = new Player(player2Config);
+//        Player player2 = new Player(player2Config);
 
         PlayerConfig player3Config = new PlayerConfig();
 
@@ -99,6 +103,8 @@ public class MyMetaStone {
 
         long player2GamesLost = simulateGames.getResult().getPlayer2Stats().getPlayer2GamesLost();
         long player2GamesWon = simulateGames.getResult().getPlayer2Stats().getPlayer2GamesWon();
+        long duration = System.currentTimeMillis() - timeStamp;
+        System.out.println("duration:" + duration);
         System.out.println("player 2 games won:" + player2GamesLost + ", player 2 games lost:" + player2GamesWon);
         System.exit(0);
     }

@@ -1,24 +1,46 @@
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'javafx-gradle-plugin'
+apply plugin: 'gradle-one-jar'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 buildscript {
     dependencies {
         classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.8.2'
+        classpath 'com.github.rholder:gradle-one-jar:1.0.4'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4' 
     }
     repositories {
         jcenter()
     }
 }
 
-mainClassName = 'net.demilich.metastone.MetaStone'
+mainClassName = 'net.demilich.metastone.my.MyMetaStone'
 
 jar {
 	manifest {
 		attributes 'Implementation-Title': rootProject.name.capitalize(),
-			'Implementation-Version': project.version
+			       'Implementation-Version': project.version
 	}
 }
+
+shadowJar {
+    baseName = 'shadow'
+    classifier = null
+    version = null
+}
+
+jar {
+    manifest {
+        attributes 'Class-Path': '/libs/a.jar'
+        attributes 'Main-Class': 'net.demilich.metastone.my.MyMetaStone'
+    }
+}
+
+
+// task awesomeFunJar(type: OneJar) {
+//     mainClass = 'net.demilich.metastone.MetaStone'
+// }
 
 dependencies {
 	compile project(':game')
