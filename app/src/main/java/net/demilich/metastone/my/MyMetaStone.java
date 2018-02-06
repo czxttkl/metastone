@@ -2,16 +2,17 @@ package net.demilich.metastone.my;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import net.demilich.metastone.game.Player;
+import net.demilich.metastone.game.behaviour.GreedyOptimizeMove;
+import net.demilich.metastone.game.behaviour.IBehaviour;
 import net.demilich.metastone.game.behaviour.PlayRandomBehaviour;
+import net.demilich.metastone.game.behaviour.heuristic.WeightedHeuristic;
 import net.demilich.metastone.game.behaviour.threat.GameStateValueBehaviour;
 import net.demilich.metastone.game.cards.*;
-import net.demilich.metastone.game.decks.DeckFactory;
 import net.demilich.metastone.game.decks.DeckFormat;
+import net.demilich.metastone.game.decks.RandomDeck;
 import net.demilich.metastone.game.entities.heroes.HeroClass;
 import net.demilich.metastone.game.gameconfig.GameConfig;
 import net.demilich.metastone.game.gameconfig.PlayerConfig;
-import net.demilich.metastone.gui.simulationmode.PlayerConfigView;
 import net.demilich.metastone.gui.simulationmode.SimulateGamesCommand2;
 import org.slf4j.LoggerFactory;
 
@@ -58,44 +59,76 @@ public class MyMetaStone {
     public static void main(String[] args) {
         long timeStamp = System.currentTimeMillis();
 
-        GameConfig gameConfig = new GameConfig();
-        gameConfig.setNumberOfGames(100);
+        int numberOfGames = 100;
+        IBehaviour player1AI = new GameStateValueBehaviour();
+        IBehaviour player2AI = new GameStateValueBehaviour();
+        HeroClass player1HeroClass = HeroClass.WARRIOR;
+        HeroClass player2HeroClass = HeroClass.WARRIOR;
 
-        DeckFormat deckFormat = new DeckFormat();
-        for (CardSet set : CardSet.values()) {
-            if (set.name().equals("BASIC") || set.name().equals("CLASSIC") || set.name().equals("THE_OLD_GODS") || set.name().equals("ONE_NIGHT_IN_KARAZHAN") || set.name().equals("MEAN_STREETS_OF_GADGETZAN")) {
-                deckFormat.addSet(set);
+        // read parameters
+        if (args.length > 0) {
+            numberOfGames = Integer.parseInt(args[0]);
+            String typeOfAI = args[1];
+            if (typeOfAI.equals("random")) {
+                player1AI = new PlayRandomBehaviour();
+                player2AI = new PlayRandomBehaviour();
+            } else if (typeOfAI.equals("gamestate")) {
+                // already initialized
+            } else if (typeOfAI.equals("greedymove")) {
+                player1AI = new GreedyOptimizeMove(new WeightedHeuristic());
+                player2AI = new GreedyOptimizeMove(new WeightedHeuristic());
+            }
+            String typeOfHeroClass = args[2];
+            switch (typeOfHeroClass) {
+                case "warrior":
+                    // already initialized
+                    break;
+                case "mage":
+                    player1HeroClass = HeroClass.MAGE;
+                    player2HeroClass = HeroClass.MAGE;
+                    break;
+                case "priest":
+                    player1HeroClass = HeroClass.PRIEST;
+                    player2HeroClass = HeroClass.PRIEST;
+                default:
+                    //
             }
         }
 
-        HeroClass heroClass1 = getRandomClass();
+        // set up game config
+        GameConfig gameConfig = new GameConfig();
+        gameConfig.setNumberOfGames(numberOfGames);
+        DeckFormat deckFormat = new DeckFormat();
+        for (CardSet set : CardSet.values()) {
+            if (set.name().equals("BASIC") ||
+                    set.name().equals("CLASSIC") ||
+                    set.name().equals("THE_OLD_GODS") ||
+                    set.name().equals("ONE_NIGHT_IN_KARAZHAN") ||
+                    set.name().equals("MEAN_STREETS_OF_GADGETZAN")) {
+                deckFormat.addSet(set);
+            }
+        }
+        deckFormat.setName("standard");
+        deckFormat.setFilename("standard.json");
+
         PlayerConfig player1Config =
                 new PlayerConfig(
-                        DeckFactory.getRandomDeck(heroClass1, deckFormat),
-//                        new PlayRandomBehaviour()
-                        new GameStateValueBehaviour()
-
+                        new RandomDeck(player1HeroClass, deckFormat),
+                        player1AI
                 );
         player1Config.setName("Player 1");
-        player1Config.setHeroCard(getHeroCardForClass(heroClass1));
-//        Player player1 = new Player(player1Config);
+        player1Config.setHeroCard(getHeroCardForClass(player1HeroClass));
 
-        HeroClass heroClass2 = getRandomClass();
         PlayerConfig player2Config =
                 new PlayerConfig(
-                        DeckFactory.getRandomDeck(heroClass2, deckFormat),
-//                        new PlayRandomBehaviour()
-                        new GameStateValueBehaviour()
+                        new RandomDeck(player2HeroClass, deckFormat),
+                        player2AI
                 );
         player2Config.setName("Player 2");
-        player2Config.setHeroCard(getHeroCardForClass(heroClass2));
-//        Player player2 = new Player(player2Config);
-
-        PlayerConfig player3Config = new PlayerConfig();
+        player2Config.setHeroCard(getHeroCardForClass(player2HeroClass));
 
         gameConfig.setPlayerConfig1(player1Config);
         gameConfig.setPlayerConfig2(player2Config);
-
         gameConfig.setDeckFormat(deckFormat);
 
         SimulateGamesCommand2 simulateGames = new SimulateGamesCommand2();
