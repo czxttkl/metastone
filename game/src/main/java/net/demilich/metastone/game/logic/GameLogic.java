@@ -644,7 +644,9 @@ public class GameLogic implements Cloneable {
 	}
 
 	public int determineBeginner(int... playerIds) {
-		return ThreadLocalRandom.current().nextBoolean() ? playerIds[0] : playerIds[1];
+		// return ThreadLocalRandom.current().nextBoolean() ? playerIds[0] : playerIds[1];
+		// make sure first player always moves first
+		return playerIds[0];
 	}
 
 	public void discardCard(Player player, Card card) {
