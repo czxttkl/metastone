@@ -10,14 +10,17 @@ import net.demilich.metastone.game.behaviour.threat.GameStateValueBehaviour;
 import net.demilich.metastone.game.cards.*;
 import net.demilich.metastone.game.decks.DeckFormat;
 import net.demilich.metastone.game.decks.RandomDeck;
+import net.demilich.metastone.game.decks.SpecificDeck;
 import net.demilich.metastone.game.entities.heroes.HeroClass;
 import net.demilich.metastone.game.gameconfig.GameConfig;
 import net.demilich.metastone.game.gameconfig.PlayerConfig;
+import net.demilich.metastone.game.logic.GameLogic;
 import net.demilich.metastone.gui.simulationmode.SimulateGamesCommand2;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class MyMetaStone {
@@ -37,15 +40,6 @@ public class MyMetaStone {
         }
     }
 
-    private static HeroClass getRandomClass() {
-        HeroClass randomClass = HeroClass.ANY;
-        HeroClass[] values = HeroClass.values();
-        while (!randomClass.isBaseClass()) {
-            randomClass = values[ThreadLocalRandom.current().nextInt(values.length)];
-        }
-        return randomClass;
-    }
-
     protected static HeroCard getHeroCardForClass(HeroClass heroClass) {
         for (Card card : CardCatalogue.getHeroes()) {
             HeroCard heroCard = (HeroCard) card;
@@ -56,48 +50,56 @@ public class MyMetaStone {
         return null;
     }
 
-    public static void main(String[] args) {
-        long timeStamp = System.currentTimeMillis();
-
+    private static int readNumberOfGames(String[] args) {
         int numberOfGames = 100;
-        IBehaviour player1AI = new GameStateValueBehaviour();
-        IBehaviour player2AI = new GameStateValueBehaviour();
-        HeroClass player1HeroClass = HeroClass.WARRIOR;
-        HeroClass player2HeroClass = HeroClass.WARRIOR;
-
-        // read parameters
         if (args.length > 0) {
             numberOfGames = Integer.parseInt(args[0]);
+        }
+        return numberOfGames;
+    }
+
+    private static IBehaviour readAI(String[] args) {
+        IBehaviour playerAI = null;
+        if (args.length > 0) {
             String typeOfAI = args[1];
             if (typeOfAI.equals("random")) {
-                player1AI = new PlayRandomBehaviour();
-                player2AI = new PlayRandomBehaviour();
+                playerAI = new PlayRandomBehaviour();
             } else if (typeOfAI.equals("gamestate")) {
-                // already initialized
+                playerAI = new GameStateValueBehaviour();
             } else if (typeOfAI.equals("greedymove")) {
-                player1AI = new GreedyOptimizeMove(new WeightedHeuristic());
-                player2AI = new GreedyOptimizeMove(new WeightedHeuristic());
+                playerAI = new GreedyOptimizeMove(new WeightedHeuristic());
             }
+        } else {
+            // default
+            // playerAI = new GreedyOptimizeMove(new WeightedHeuristic());
+            playerAI = new GameStateValueBehaviour();
+        }
+        return playerAI;
+    }
+
+    private static HeroClass readHeroClass(String[] args) {
+        HeroClass playerHeroClass = null;
+        if (args.length > 0) {
             String typeOfHeroClass = args[2];
             switch (typeOfHeroClass) {
                 case "warrior":
-                    // already initialized
+                    playerHeroClass = HeroClass.WARRIOR;
                     break;
                 case "mage":
-                    player1HeroClass = HeroClass.MAGE;
-                    player2HeroClass = HeroClass.MAGE;
+                    playerHeroClass = HeroClass.MAGE;
                     break;
                 case "priest":
-                    player1HeroClass = HeroClass.PRIEST;
-                    player2HeroClass = HeroClass.PRIEST;
+                    playerHeroClass = HeroClass.PRIEST;
                 default:
                     //
             }
+        } else {
+            playerHeroClass = HeroClass.WARRIOR;
         }
+        return playerHeroClass;
+    }
 
-        // set up game config
-        GameConfig gameConfig = new GameConfig();
-        gameConfig.setNumberOfGames(numberOfGames);
+    private static DeckFormat initDeckFormat() {
         DeckFormat deckFormat = new DeckFormat();
         for (CardSet set : CardSet.values()) {
             if (set.name().equals("BASIC") ||
@@ -110,10 +112,67 @@ public class MyMetaStone {
         }
         deckFormat.setName("standard");
         deckFormat.setFilename("standard.json");
+        return deckFormat;
+    }
+
+    private static int[] readPlayer1CardIdx(String[] args) {
+        int[] player1CardIdxArr = new int[30];
+        if (args.length > 0) {
+            String player1CardIdxStr = args[3];
+            String[] player1CardIdxStrArr = player1CardIdxStr.split(",");
+            assert player1CardIdxStrArr.length == 30;
+            for (int i = 0; i < 30; i++) {
+                player1CardIdxArr[i] = Integer.parseInt(player1CardIdxStrArr[i]);
+            }
+        } else {
+            player1CardIdxArr = ThreadLocalRandom.current()
+                    .ints(0, SpecificDeck.getAvailableCardSize() * 2)
+                    .distinct().limit(30).toArray();
+        }
+        return player1CardIdxArr;
+    }
+
+    private static int[] readPlayer2CardIdx(String[] args) {
+        int[] player2CardIdxArr = new int[30];
+        if (args.length > 0) {
+            String player2CardIdxStr = args[4];
+            String[] player2CardIdxStrArr = player2CardIdxStr.split(",");
+            assert player2CardIdxStrArr.length == 30;
+            for (int i = 0; i < 30; i++) {
+                player2CardIdxArr[i] = Integer.parseInt(player2CardIdxStrArr[i]);
+            }
+        } else {
+            player2CardIdxArr = ThreadLocalRandom.current()
+                        .ints(0, SpecificDeck.getAvailableCardSize() * 2)
+                        .distinct().limit(30).toArray();
+        }
+        return player2CardIdxArr;
+    }
+
+    public static void main(String[] args) {
+        long timeStamp = System.currentTimeMillis();
+
+        int numberOfGames = readNumberOfGames(args);
+        IBehaviour player1AI = readAI(args);
+        IBehaviour player2AI = readAI(args);
+        HeroClass player1HeroClass = readHeroClass(args);
+        HeroClass player2HeroClass = readHeroClass(args);
+        DeckFormat deckFormat = initDeckFormat();
+        SpecificDeck.initCards(player1HeroClass, deckFormat);
+        int[] player1CardIdxArr = readPlayer1CardIdx(args);
+        int[] player2CardIdxArr = readPlayer2CardIdx(args);
+
+        // set up game config
+        GameConfig gameConfig = new GameConfig();
+        gameConfig.setNumberOfGames(numberOfGames);
+        gameConfig.setDeckFormat(deckFormat);
+
+        SpecificDeck player1Deck = new SpecificDeck(player1HeroClass, player1CardIdxArr);
+        SpecificDeck player2Deck = new SpecificDeck(player2HeroClass, player2CardIdxArr);
 
         PlayerConfig player1Config =
                 new PlayerConfig(
-                        new RandomDeck(player1HeroClass, deckFormat),
+                        player1Deck,
                         player1AI
                 );
         player1Config.setName("Player 1");
@@ -121,15 +180,14 @@ public class MyMetaStone {
 
         PlayerConfig player2Config =
                 new PlayerConfig(
-                        new RandomDeck(player2HeroClass, deckFormat),
-                        player2AI
+                         player2Deck,
+                         player2AI
                 );
         player2Config.setName("Player 2");
         player2Config.setHeroCard(getHeroCardForClass(player2HeroClass));
 
         gameConfig.setPlayerConfig1(player1Config);
         gameConfig.setPlayerConfig2(player2Config);
-        gameConfig.setDeckFormat(deckFormat);
 
         SimulateGamesCommand2 simulateGames = new SimulateGamesCommand2();
         simulateGames.execute(gameConfig);

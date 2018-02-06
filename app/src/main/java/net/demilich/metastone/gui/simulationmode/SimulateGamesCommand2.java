@@ -1,6 +1,7 @@
 package net.demilich.metastone.gui.simulationmode;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -12,17 +13,12 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.demilich.nittygrittymvc.Notification;
-import net.demilich.nittygrittymvc.SimpleCommand;
-import net.demilich.nittygrittymvc.interfaces.INotification;
-import net.demilich.metastone.GameNotification;
 import net.demilich.metastone.game.GameContext;
 import net.demilich.metastone.game.Player;
 import net.demilich.metastone.game.decks.DeckFormat;
 import net.demilich.metastone.game.logic.GameLogic;
 import net.demilich.metastone.game.gameconfig.GameConfig;
 import net.demilich.metastone.game.gameconfig.PlayerConfig;
-import net.demilich.metastone.utils.Tuple;
 
 public class SimulateGamesCommand2 {
 
@@ -83,23 +79,25 @@ public class SimulateGamesCommand2 {
 
         int completed = 0;
         while (completed < gameConfig.getNumberOfGames()) {
-            for (Future<Void> future : futures) {
+            Iterator<Future<Void>> iterator = futures.iterator();
+            while (iterator.hasNext()) {
+                Future<Void> future = iterator.next();
                 if (!future.isDone()) {
                     continue;
                 }
                 try {
                     future.get();
                     completed += 1;
-                    if (completed < gameConfig.getNumberOfGames()) {
+                    if (completed >= gameConfig.getNumberOfGames()) {
                         break;
                     }
+                    iterator.remove();
                 } catch (InterruptedException | ExecutionException e) {
                     logger.error(ExceptionUtils.getStackTrace(e));
                     e.printStackTrace();
                     System.exit(-1);
                 }
             }
-            futures.removeIf(future -> future.isDone());
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
@@ -113,8 +111,11 @@ public class SimulateGamesCommand2 {
 
     private void onGameComplete(GameConfig gameConfig, GameContext context) {
         synchronized (result) {
-            result.getPlayer1Stats().merge(context.getPlayer1().getStatistics());
-            result.getPlayer2Stats().merge(context.getPlayer2().getStatistics());
+            if (result.getNumberOfGamesAddedSoFar() < result.getNumberOfGames()) {
+                result.getPlayer1Stats().merge(context.getPlayer1().getStatistics());
+                result.getPlayer2Stats().merge(context.getPlayer2().getStatistics());
+                result.addGamesAddedSoFar();
+            }
         }
     }
 

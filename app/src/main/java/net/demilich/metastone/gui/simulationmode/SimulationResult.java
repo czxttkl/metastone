@@ -11,6 +11,7 @@ public class SimulationResult {
 	private final long startTimestamp;
 	private long duration;
 	private final GameConfig config;
+	private int gamesAddedSoFar= 0;
 
 	public SimulationResult(GameConfig config) {
 		this.config = config;
@@ -20,6 +21,14 @@ public class SimulationResult {
 	public void calculateMetaStatistics() {
 		calculateMetaStatistics(player1Stats);
 		calculateMetaStatistics(player2Stats);
+	}
+
+	public int getNumberOfGamesAddedSoFar() {
+		return this.gamesAddedSoFar;
+	}
+
+	public void addGamesAddedSoFar() {
+		this.gamesAddedSoFar += 1;
 	}
 
 	private void calculateMetaStatistics(GameStatistics statistics) {
