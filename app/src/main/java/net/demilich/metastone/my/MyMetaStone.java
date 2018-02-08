@@ -215,7 +215,8 @@ public class MyMetaStone {
         long player2GamesWon = simulateGames.getResult().getPlayer2Stats().getPlayer2GamesWon();
         long duration = System.currentTimeMillis() - timeStamp;
         System.out.println("duration:" + duration);
-        System.out.println("player 2 games won:" + player2GamesLost + ", player 2 games lost:" + player2GamesWon);
+        System.out.println("player 2 games won:lost");
+        System.out.println(player2GamesLost + ":" + player2GamesWon);
         System.exit(0);
     }
 }
