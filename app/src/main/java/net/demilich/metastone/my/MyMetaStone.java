@@ -58,7 +58,7 @@ public class MyMetaStone {
         return numberOfGames;
     }
 
-    private static IBehaviour readAI(String[] args) {
+    private static IBehaviour readPlayer1AI(String[] args) {
         IBehaviour playerAI = null;
         if (args.length > 0) {
             String typeOfAI = args[1];
@@ -71,7 +71,26 @@ public class MyMetaStone {
             }
         } else {
             // default
-            // playerAI = new GreedyOptimizeMove(new WeightedHeuristic());
+           //   playerAI = new GreedyOptimizeMove(new WeightedHeuristic());
+            playerAI = new GameStateValueBehaviour();
+        }
+        return playerAI;
+    }
+
+    private static IBehaviour readPlayer2AI(String[] args) {
+        IBehaviour playerAI = null;
+        if (args.length > 0) {
+            String typeOfAI = args[2];
+            if (typeOfAI.equals("random")) {
+                playerAI = new PlayRandomBehaviour();
+            } else if (typeOfAI.equals("gamestate")) {
+                playerAI = new GameStateValueBehaviour();
+            } else if (typeOfAI.equals("greedymove")) {
+                playerAI = new GreedyOptimizeMove(new WeightedHeuristic());
+            }
+        } else {
+            // default
+            //   playerAI = new GreedyOptimizeMove(new WeightedHeuristic());
             playerAI = new GameStateValueBehaviour();
         }
         return playerAI;
@@ -80,7 +99,7 @@ public class MyMetaStone {
     private static HeroClass readHeroClass(String[] args) {
         HeroClass playerHeroClass = null;
         if (args.length > 0) {
-            String typeOfHeroClass = args[2];
+            String typeOfHeroClass = args[3];
             switch (typeOfHeroClass) {
                 case "warrior":
                     playerHeroClass = HeroClass.WARRIOR;
@@ -117,8 +136,8 @@ public class MyMetaStone {
 
     private static int[] readPlayer1CardIdx(String[] args) {
         int[] player1CardIdxArr = new int[30];
-        if (args.length > 0) {
-            String player1CardIdxStr = args[3];
+        if (args.length > 0 && args.length == 6) {
+            String player1CardIdxStr = args[4];
             String[] player1CardIdxStrArr = player1CardIdxStr.split(",");
             assert player1CardIdxStrArr.length == 30;
             for (int i = 0; i < 30; i++) {
@@ -134,8 +153,8 @@ public class MyMetaStone {
 
     private static int[] readPlayer2CardIdx(String[] args) {
         int[] player2CardIdxArr = new int[30];
-        if (args.length > 0) {
-            String player2CardIdxStr = args[4];
+        if (args.length > 0 && args.length == 6) {
+            String player2CardIdxStr = args[5];
             String[] player2CardIdxStrArr = player2CardIdxStr.split(",");
             assert player2CardIdxStrArr.length == 30;
             for (int i = 0; i < 30; i++) {
@@ -153,8 +172,8 @@ public class MyMetaStone {
         long timeStamp = System.currentTimeMillis();
 
         int numberOfGames = readNumberOfGames(args);
-        IBehaviour player1AI = readAI(args);
-        IBehaviour player2AI = readAI(args);
+        IBehaviour player1AI = readPlayer1AI(args);
+        IBehaviour player2AI = readPlayer2AI(args);
         HeroClass player1HeroClass = readHeroClass(args);
         HeroClass player2HeroClass = readHeroClass(args);
         DeckFormat deckFormat = initDeckFormat();
