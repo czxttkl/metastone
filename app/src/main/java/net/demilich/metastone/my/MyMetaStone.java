@@ -2,9 +2,7 @@ package net.demilich.metastone.my;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import net.demilich.metastone.game.behaviour.GreedyOptimizeMove;
-import net.demilich.metastone.game.behaviour.IBehaviour;
-import net.demilich.metastone.game.behaviour.PlayRandomBehaviour;
+import net.demilich.metastone.game.behaviour.*;
 import net.demilich.metastone.game.behaviour.heuristic.WeightedHeuristic;
 import net.demilich.metastone.game.behaviour.threat.GameStateValueBehaviour;
 import net.demilich.metastone.game.cards.*;
@@ -68,6 +66,10 @@ public class MyMetaStone {
                 playerAI = new GameStateValueBehaviour();
             } else if (typeOfAI.equals("greedymove")) {
                 playerAI = new GreedyOptimizeMove(new WeightedHeuristic());
+            } else if (typeOfAI.equals("greedyturn")) {
+                playerAI = new GreedyOptimizeTurn(new WeightedHeuristic());
+            } else if (typeOfAI.equals("montecarlo")) {
+                playerAI = new FlatMonteCarlo(100);
             }
         } else {
             // default
@@ -87,6 +89,10 @@ public class MyMetaStone {
                 playerAI = new GameStateValueBehaviour();
             } else if (typeOfAI.equals("greedymove")) {
                 playerAI = new GreedyOptimizeMove(new WeightedHeuristic());
+            } else if (typeOfAI.equals("greedyturn")) {
+                playerAI = new GreedyOptimizeTurn(new WeightedHeuristic());
+            } else if (typeOfAI.equals("montecarlo")) {
+                playerAI = new FlatMonteCarlo(100);
             }
         } else {
             // default
