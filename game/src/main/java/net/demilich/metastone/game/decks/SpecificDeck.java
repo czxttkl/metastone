@@ -37,9 +37,9 @@ public class SpecificDeck extends Deck {
         setName("[Specific deck]");
         this.copyDeck = new Deck(getHeroClass());
         for (int i : index) {
-            // every card can have at most two copies
-            int j = i / 2;
-            this.copyDeck.getCards().add(availableCards.get(j));
+            // every card has two copies
+            this.copyDeck.getCards().add(availableCards.get(i));
+            this.copyDeck.getCards().add(availableCards.get(i));
         }
     }
 

@@ -135,35 +135,35 @@ public class MyMetaStone {
     }
 
     private static int[] readPlayer1CardIdx(String[] args) {
-        int[] player1CardIdxArr = new int[30];
+        int[] player1CardIdxArr = new int[15];
         if (args.length > 0 && args.length == 6) {
             String player1CardIdxStr = args[4];
             String[] player1CardIdxStrArr = player1CardIdxStr.split(",");
-            assert player1CardIdxStrArr.length == 30;
-            for (int i = 0; i < 30; i++) {
+            assert player1CardIdxStrArr.length == 15;
+            for (int i = 0; i < 15; i++) {
                 player1CardIdxArr[i] = Integer.parseInt(player1CardIdxStrArr[i]);
             }
         } else {
             player1CardIdxArr = ThreadLocalRandom.current()
-                    .ints(0, SpecificDeck.getAvailableCardSize() * 2)
-                    .distinct().limit(30).toArray();
+                    .ints(0, SpecificDeck.getAvailableCardSize())
+                    .distinct().limit(15).toArray();
         }
         return player1CardIdxArr;
     }
 
     private static int[] readPlayer2CardIdx(String[] args) {
-        int[] player2CardIdxArr = new int[30];
+        int[] player2CardIdxArr = new int[15];
         if (args.length > 0 && args.length == 6) {
             String player2CardIdxStr = args[5];
             String[] player2CardIdxStrArr = player2CardIdxStr.split(",");
-            assert player2CardIdxStrArr.length == 30;
-            for (int i = 0; i < 30; i++) {
+            assert player2CardIdxStrArr.length == 15;
+            for (int i = 0; i < 15; i++) {
                 player2CardIdxArr[i] = Integer.parseInt(player2CardIdxStrArr[i]);
             }
         } else {
             player2CardIdxArr = ThreadLocalRandom.current()
-                        .ints(0, SpecificDeck.getAvailableCardSize() * 2)
-                        .distinct().limit(30).toArray();
+                        .ints(0, SpecificDeck.getAvailableCardSize())
+                        .distinct().limit(15).toArray();
         }
         return player2CardIdxArr;
     }
